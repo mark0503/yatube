@@ -8,6 +8,6 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ('group', 'text')
         labels = {
-           'group': gettext_lazy('Группа'),
-           'text': gettext_lazy('Текст')
+            'group': gettext_lazy('Группа'),
+            'text': gettext_lazy('Текст')
         }

@@ -1,5 +1,5 @@
-from django.contrib.auth.views import SuccessURLAllowedHostsMixin, PasswordContextMixin
-from django.shortcuts import render
+from django.contrib.auth.views import SuccessURLAllowedHostsMixin
+from django.contrib.auth.views import PasswordContextMixin
 from django.views.generic import CreateView, FormView, TemplateView
 from django.urls import reverse_lazy
 from .forms import CreationForm
