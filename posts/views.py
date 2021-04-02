@@ -2,11 +2,15 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Group
 from .forms import PostForm
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
 
 def index(request):
     latest = Post.objects.order_by('-pub_date')[:11]
-    return render(request, 'posts/index.html', {'posts': latest})
+    paginator = Paginator(latest, 10)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+    return render(request, 'posts/index.html', {'posts': page})
 
 
 def group_posts(request, slug):
@@ -28,3 +32,6 @@ def new_post(request):
         return render(request, 'posts/new.html', {'form': form})
     form = PostForm()
     return render(request, 'posts/new.html', {'form': form})
+
+
+

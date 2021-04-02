@@ -5,7 +5,7 @@ User = get_user_model()
 
 
 class Post(models.Model):
-    text = models.TextField()
+    text = models.TextField(verbose_name='Текст поста', help_text='Напишите текст поста')
     pub_date = models.DateTimeField('date published', auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='posts')
