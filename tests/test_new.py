@@ -1,5 +1,6 @@
 import pytest
 from django import forms
+
 from posts.models import Post
 
 
@@ -33,7 +34,7 @@ class TestNewView:
             'Проверьте, что в форме `form` на странице `/new/` поле `text` типа `CharField`'
         )
         assert response.context['form'].fields['text'].required, (
-            'Проверьте, что в форме `form` на странице `/new/` поле `text` обязательно'
+            'Проверьте, что в форме `form` на странице `/new/` поле `group` обязательно'
         )
 
     @pytest.mark.django_db(transaction=True)

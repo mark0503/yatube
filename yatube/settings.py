@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'posts',
     'django.contrib.admin',
     'django.contrib.auth',
+    'about',
 ]
 
 MIDDLEWARE = [
