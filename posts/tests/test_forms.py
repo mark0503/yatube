@@ -1,41 +1,75 @@
 from django.test import TestCase, Client
-from posts.models import Post, User, Group
+from posts.models import Post, Group, User
 from django.urls import reverse
-from posts.forms import PostForm
 
 
-class PostFormsTests(TestCase):
+class TaskURLTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        test_author = User.objects.create_user(username='Mark')
-        test_group = Group.objects.create(title='test', slug='test')
-        post = Post.objects.create(
-            text='test_PostModel',
-            pub_date='24.03.2021',
-            author=test_author,
+        test_author = User.objects.create(username='test_user')
+        test_group = Group.objects.create(title='test_group',
+                                          description='test', slug='test')
+        cls.post = Post.objects.create(
+            text='Текст',
             group=test_group,
+            author=test_author,
         )
-        cls.form = PostForm()
 
     def setUp(self):
-        self.guest_client = Client()
-        self.user = User.objects.create_user(username='Mark1')
+        self.username = 'test_user1'
+        self.user = User.objects.create_user(username=self.username)
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        self.test_group = Group.objects.create(title='test_group3',
+                                               description='test3',
+                                               slug='test3')
+        self.post = Post.objects.create(
+            text='Текст',
+            group=self.test_group,
+            author=self.user,
+        )
 
     def test_create_post(self):
-        posts_count = Post.objects.count()
-        test_group = Group.objects.get(title='test')
+        group = Group.objects.get(title='test_group')
         form_data = {
-            "group": test_group.id,
-            "text": "Тестовый текст",
+            "group": group.id,
+            "text": 'test',
         }
         response = self.authorized_client.post(
             reverse("new_post"), data=form_data, follow=True
         )
-        self.assertEqual(Post.objects.count() - 1, posts_count)
+        posts_count = Post.objects.count()
         self.assertRedirects(response, reverse("index"))
+        self.assertEqual(Post.objects.count(), posts_count)
         self.assertTrue(
-            Post.objects.filter(group=test_group.id, text="Тестовый текст").exists()
+            Post.objects.filter(group=group.id, text='test').exists()
         )
+
+    def test_edit_post(self):
+        group = Group.objects.get(title='test_group3')
+        posts_count = Post.objects.count()
+        form_data = {
+            "group": group.id,
+            "text": 'test21',
+        }
+        response = self.authorized_client.post(
+            reverse("post_edit",
+                    kwargs={'username': self.username,
+                            'post_id': self.post.id}),
+            data=form_data,
+            follow=True
+        )
+        self.assertRedirects(response, reverse('post_profile',
+                                               kwargs={
+                                                   'username': self.username,
+                                                   'post_id': self.post.id
+                                                   }
+                                                )
+                                            )
+        self.assertEqual(Post.objects.count(), posts_count)
+        self.assertTrue( 
+            Post.objects.filter(text="test21", 
+                                group=group.id).exists() 
+        )
+        

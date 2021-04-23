@@ -5,15 +5,20 @@ User = get_user_model()
 
 
 class Post(models.Model):
-    text = models.TextField(verbose_name='Текст поста', help_text='Напишите текст поста')
+    text = models.TextField('текст')
     pub_date = models.DateTimeField('date published', auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='posts')
     group = models.ForeignKey('Group', on_delete=models.SET_NULL,
                               related_name='posts', blank=True, null=True)
 
+    class Meta:
+        ordering = ['-pub_date']
+        verbose_name = 'Посты'
+        verbose_name = 'Пост'
+
     def __str__(self):
-        return self.text
+        return self.text[:15]
 
 
 class Group(models.Model):
