@@ -1,5 +1,6 @@
 from posts.models import Post, Group, User
 from django.urls import reverse
+from django.test import TestCase
 
 
 class TaskURLTests(TestCase):
@@ -75,7 +76,7 @@ class TaskURLTests(TestCase):
             group=test_group,
             author=test_author,
         )
-        
+
     def test_first_page_contains_ten_records(self):
         response = self.client.get(reverse('index'))
         self.assertEqual(len(response.context.get('page').object_list), 10)

@@ -111,11 +111,11 @@ class TaskURLTests(TestCase):
     def test_home_page_shows_correct_context(self):
         response = self.authorized_client.get(reverse("post_edit",
                                               kwargs={"username": "test_user2",
-                                                      "post_id": self.post.id}))
+                                                      "post_id": self.post.id})
+                                                      )
         form_fields = {
-            #'group': forms.fields.ModelChoiceField,    
             'text': forms.fields.CharField,
-        }        
+        }
 
         for value, expected in form_fields.items():
             with self.subTest(value=value):
@@ -125,7 +125,7 @@ class TaskURLTests(TestCase):
     def test_task_in_profile(self):
         response = self.authorized_client.get(
                 reverse('post_profile', kwargs={"username": "test_user2",
-                                                "post_id": self.post.id})
+                "post_id": self.post.id})
         )
         first_object = response.context['post']
         post_text_0 = first_object.text

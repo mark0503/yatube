@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from posts.models import Post, Group, User
 import datetime
-from django.urls import reverse 
+from django.urls import reverse
 
 
 class StaticURLTests(TestCase):
@@ -39,14 +39,14 @@ class TaskURLTests(TestCase):
         self.authorized_user = Client()
         self.authorized_user.force_login(self.user2)
         self.guest_client = Client()
-        self.post = Post.objects.create( 
+        self.post = Post.objects.create(
             text="test_PostModel",
             pub_date="24.03.2021",
             author=self.user,
             group=self.group,
         )
- 
-    def test_urls_uses_correct_template(self): 
+
+    def test_urls_uses_correct_template(self):
         templates_url_names = {
             reverse('index'): 'index.html',
             reverse('group', args=[self.group]): 'posts/group.html',
@@ -54,18 +54,19 @@ class TaskURLTests(TestCase):
             reverse('post_edit', kwargs={'username': self.username,
                                          'post_id': self.post.id
                                          }): 'new.html',
-        } 
+        }
         for reverse_name, template in templates_url_names.items():
             with self.subTest():
                 response = self.authorized_client.get(reverse_name)
                 self.assertTemplateUsed(response, template)
-    
+
     def test_profile(self):
         response = self.guest_client.get('/test_user1/')
         self.assertAlmostEqual(response.status_code, 200)
         response = self.guest_client.get(f'/test_user1/{self.post.id}')
         self.assertAlmostEqual(response.status_code, 301)
-        response = self.authorized_client.get(f'/test_user1/{self.post.id}/edit/', follow=True)
+        response = self.authorized_client.get(f'/test_user1/{self.post.id}/edit/',
+        follow=True)
         self.assertEqual(response.status_code, 200)
         response = self.guest_client.get(
             reverse(

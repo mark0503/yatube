@@ -64,12 +64,9 @@ class TaskURLTests(TestCase):
                                                kwargs={
                                                    'username': self.username,
                                                    'post_id': self.post.id
-                                                   }
-                                                )
-                                            )
+                                               }))
         self.assertEqual(Post.objects.count(), posts_count)
-        self.assertTrue( 
-            Post.objects.filter(text="test21", 
+        self.assertTrue(
+            Post.objects.filter(text="test21",
                                 group=group.id).exists() 
         )
-        
