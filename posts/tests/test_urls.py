@@ -61,12 +61,13 @@ class TaskURLTests(TestCase):
                 self.assertTemplateUsed(response, template)
 
     def test_profile(self):
+        iid = self.post.id
         response = self.guest_client.get('/test_user1/')
         self.assertAlmostEqual(response.status_code, 200)
-        response = self.guest_client.get(f'/test_user1/{self.post.id}')
+        response = self.guest_client.get(f'/test_user1/{iid}')
         self.assertAlmostEqual(response.status_code, 301)
-        response = self.authorized_client.get(f'/test_user1/{self.post.id}/edit/',
-        follow=True)
+        response = self.authorized_client.get(f'/test_user1/{iid}/edit/',
+                                              follow=True)
         self.assertEqual(response.status_code, 200)
         response = self.guest_client.get(
             reverse(

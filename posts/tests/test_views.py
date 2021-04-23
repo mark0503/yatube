@@ -109,10 +109,10 @@ class TaskURLTests(TestCase):
         self.assertTemplateUsed(response, 'about/tech.html')
 
     def test_home_page_shows_correct_context(self):
+        iid = self.post.id
         response = self.authorized_client.get(reverse("post_edit",
                                               kwargs={"username": "test_user2",
-                                                      "post_id": self.post.id})
-                                                      )
+                                                      "post_id": iid}))
         form_fields = {
             'text': forms.fields.CharField,
         }
@@ -121,12 +121,13 @@ class TaskURLTests(TestCase):
             with self.subTest(value=value):
                 form_field = response.context['form'].fields[value]
                 self.assertIsInstance(form_field, expected)
-    
+
     def test_task_in_profile(self):
         response = self.authorized_client.get(
                 reverse('post_profile', kwargs={"username": "test_user2",
-                "post_id": self.post.id})
-        )
+                                                "post_id": self.post.id}
+                                                )
+                                            )
         first_object = response.context['post']
         post_text_0 = first_object.text
         post_author_0 = first_object.author.username
