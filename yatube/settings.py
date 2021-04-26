@@ -25,7 +25,12 @@ SECRET_KEY = 'fx8l9m#627w6d_s*c%5j4&d&m245b!^j(jno92ajd&p#f*_1m8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '[::1]',
+    'testserver',
+]
 
 
 # Application definition
@@ -40,7 +45,14 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'about',
+    'sorl.thumbnail',
 ]
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -126,8 +138,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = 'index'

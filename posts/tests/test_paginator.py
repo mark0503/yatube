@@ -11,71 +11,10 @@ class TaskURLTests(TestCase):
         test_group = Group.objects.create(title='test_group',
                                           description='test',
                                           slug='test')
-        cls.post = Post.objects.create(
-            text='Текст1',
-            group=test_group,
-            author=test_author,
-        ),
-        Post.objects.create(
-            text='Текст2',
-            group=test_group,
-            author=test_author,
-        ),
-        Post.objects.create(
-            text='Текст3',
-            group=test_group,
-            author=test_author,
-        ),
-        Post.objects.create(
-            text='Текст4',
-            group=test_group,
-            author=test_author,
-        ),
-        Post.objects.create(
-            text='Текст5',
-            group=test_group,
-            author=test_author,
-        ),
-        Post.objects.create(
-            text='Текст6',
-            group=test_group,
-            author=test_author,
-        ),
-        Post.objects.create(
-            text='Текст7',
-            group=test_group,
-            author=test_author,
-        ),
-        Post.objects.create(
-            text='Текст8',
-            group=test_group,
-            author=test_author,
-        ),
-        Post.objects.create(
-            text='Текст9',
-            group=test_group,
-            author=test_author,
-        ),
-        Post.objects.create(
-            text='Текст10',
-            group=test_group,
-            author=test_author,
-        ),
-        Post.objects.create(
-            text='Текст11',
-            group=test_group,
-            author=test_author,
-        ),
-        Post.objects.create(
-            text='Текст12',
-            group=test_group,
-            author=test_author,
-        ),
-        Post.objects.create(
-            text='Текст13',
-            group=test_group,
-            author=test_author,
-        )
+        cls.obj = (Post(text='Тестовый текст %s' % i,
+                        author=test_author,
+                        group=test_group) for i in range(13))
+        cls.test_posts = Post.objects.bulk_create(cls.obj)
 
     def test_first_page_contains_ten_records(self):
         response = self.client.get(reverse('index'))

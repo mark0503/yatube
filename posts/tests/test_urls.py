@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-from posts.models import Post, Group, User
+from posts.models import Post, Group, User, Follow
 import datetime
 from django.urls import reverse
 
@@ -9,7 +9,7 @@ class StaticURLTests(TestCase):
         self.guest_client = Client()
 
     def test_homepage(self):
-        response = self.guest_client.get('/')
+        response = self.guest_client.get(reverse('index'))
         self.assertEqual(response.status_code, 200)
 
 
@@ -17,13 +17,13 @@ class TaskURLTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        test_author = User.objects.create(username='test_user')
+        cls.test_author = User.objects.create(username='test_user')
         test_group = Group.objects.create(title='test_group',
                                           description='test', slug='test')
         cls.post = Post.objects.create(
             text='Текст',
             group=test_group,
-            author=test_author,
+            author=cls.test_author,
             pub_date=datetime.datetime.today()
         )
 
@@ -61,14 +61,31 @@ class TaskURLTests(TestCase):
                 self.assertTemplateUsed(response, template)
 
     def test_profile(self):
-        iid = self.post.id
-        response = self.guest_client.get('/test_user1/')
-        self.assertAlmostEqual(response.status_code, 200)
-        response = self.guest_client.get(f'/test_user1/{iid}')
-        self.assertAlmostEqual(response.status_code, 301)
-        response = self.authorized_client.get(f'/test_user1/{iid}/edit/',
-                                              follow=True)
+        response = self.guest_client.get(reverse('profile',
+                                         kwargs={'username': 'test_user1'}))
         self.assertEqual(response.status_code, 200)
+
+    def test_profile_post(self):
+        iid = self.post.id
+        response = self.guest_client.get(reverse('post_profile',
+                                         kwargs={'username': 'test_user1',
+                                                 'post_id': iid}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_post_edit(self):
+        iid = self.post.id
+        response = self.authorized_client.get(
+            reverse(
+                'post_edit',
+                kwargs={
+                    'username': 'test_user1',
+                    'post_id': iid,
+                }
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_post_edit_guest(self):
         response = self.guest_client.get(
             reverse(
                 'post_edit',
@@ -79,8 +96,10 @@ class TaskURLTests(TestCase):
             ),
             follow=True)
         self.assertRedirects(
-            response, f'/{self.username}/{self.post.id}/'
+            response, '/auth/login/?next=/test_user1/2/edit/'
         )
+
+    def test_profile_post_edit_non_author(self):
         response = self.authorized_user.get(
             reverse(
                 'post_edit',
@@ -91,5 +110,44 @@ class TaskURLTests(TestCase):
             ),
             follow=True)
         self.assertRedirects(
-            response, f'/{self.username}/{self.post.id}/'
+            response, reverse(
+                'post_profile',
+                kwargs={
+                    'username': self.username,
+                    'post_id': self.post.id,
+                }
+            )
         )
+
+    def test_404_page(self):
+        response = self.guest_client.get('/unknown/page/')
+        self.assertEquals(response.status_code, 404)
+
+    def test_profile_follow(self):
+        x = 0
+        self.authorized_user.get(reverse('profile_follow',
+                                 kwargs={'username': 'test_user1'}))
+        if Follow.objects.get(user=self.user2, author=self.user):
+            x = 1
+        self.assertEqual(x, 1)
+
+    def test_profile_unfollow(self):
+        x = 0
+        self.authorized_user.get(reverse('profile_unfollow',
+                                 kwargs={'username': 'test_user'}))
+        try:
+            Follow.objects.get(user=self.user2, author=self.user)
+        except Follow.DoesNotExist:
+            x = 1
+            pass
+        self.assertEqual(x, 1)
+
+    def test_profile_follow(self):
+        response = self.authorized_user.get(reverse('profile_follow',
+                                            kwargs={'username': 'test_user'}))
+        self.assertEqual(response.status_code, 302)
+
+    def test_profile_unfollow(self):
+        response = self.authorized_user.get(reverse('profile_unfollow',
+                                            kwargs={'username': 'test_user'}))
+        self.assertEqual(response.status_code, 302)
